@@ -1,0 +1,70 @@
+{
+    "name": "hulk-react-utils",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "A React utility library for authentication, fetching, and alert management",
+    "main": "dist/index.js",
+    "module": "dist/index.esm.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "rollup -c",
+        "build:watch": "rollup -c -w",
+        "dev": "rollup -c -w",
+        "clean": "rimraf dist",
+        "prepublishOnly": "npm run clean && npm run build",
+        "type-check": "tsc --noEmit",
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage"
+    },
+    "keywords": [
+        "react",
+        "typescript",
+        "authentication",
+        "fetch",
+        "alerts",
+        "nextjs",
+        "hooks",
+        "context"
+    ],
+    "author": "Ahmad Khidir <khidirahmad05@gmail.com>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ahmadkhidir/hulk-react-utils.git"
+    },
+    "homepage": "https://github.com/ahmadkhidir/hulk-react-utils#readme",
+    "bugs": {
+        "url": "https://github.com/ahmadkhidir/hulk-react-utils/issues"
+    },
+    "peerDependencies": {
+        "next": "^13.0.0 || ^14.0.0 || ^15.0.0",
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^25.0.0",
+        "@rollup/plugin-node-resolve": "^15.0.0",
+        "@rollup/plugin-typescript": "^11.0.0",
+        "@testing-library/jest-dom": "^6.0.0",
+        "@testing-library/react": "^14.0.0",
+        "@testing-library/user-event": "^14.0.0",
+        "@types/jest": "^29.0.0",
+        "@types/node": "^20.0.0",
+        "@types/react": "^18.0.0",
+        "@types/react-dom": "^18.0.0",
+        "jest": "^29.0.0",
+        "jest-environment-jsdom": "^29.0.0",
+        "rimraf": "^5.0.0",
+        "rollup": "^4.0.0",
+        "rollup-plugin-dts": "^6.0.0",
+        "rollup-plugin-peer-deps-external": "^2.2.4",
+        "ts-jest": "^29.0.0",
+        "typescript": "^5.0.0"
+    }
+}

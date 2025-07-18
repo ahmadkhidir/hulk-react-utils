@@ -1,0 +1,456 @@
+import React from 'react';
+import { render, screen, fireEvent, waitFor, renderHook, act } from '@testing-library/react';
+import { useHulk, useHulkAlert, useHulkFetch } from '../hooks';
+import withHulk from '../hoc';
+import { HulkGlobalConfigProps } from '../types';
+
+// // Mock next/navigation
+// const mockRedirect = jest.fn();
+// const mockUsePathname = jest.fn().mockReturnValue('/dashboard');
+
+// jest.mock('next/navigation', () => ({
+//   redirect: mockRedirect,
+//   usePathname: mockUsePathname,
+// }));
+
+// // Mock react-dom/client
+// jest.mock('react-dom/client', () => ({
+//   createRoot: jest.fn().mockReturnValue({
+//     render: jest.fn(),
+//   }),
+// }));
+
+// describe('hooks', () => {
+//   const mockConfig: HulkGlobalConfigProps = {
+//     fetchGlobalOptions: {
+//       baseUrl: 'https://api.test.com',
+//       defaultHeaders: {
+//         'Content-Type': 'application/json',
+//       },
+//       unauthorizedRedirectUrl: '/login',
+//       errorParser: jest.fn().mockResolvedValue({
+//         message: 'Test error',
+//         code: 400,
+//         details: ['Test error details']
+//       }),
+//     },
+//     alertGlobalOptions: {
+//       targetId: 'test-alerts',
+//       replaceDuplicates: true,
+//     },
+//   };
+
+//   // Create a more reliable approach using refs to store hook results
+//   const createTestComponent = (hookFn: () => any, config = mockConfig) => {
+//     let hookResultRef: { current: any } = { current: undefined };
+    
+//     const TestComponent = () => {
+//       const hookResult = hookFn();
+//       hookResultRef.current = hookResult;
+//       return React.createElement('div', { 'data-testid': 'test-component' });
+//     };
+    
+//     const WrappedComponent = withHulk(TestComponent, config);
+//     return { 
+//       TestComponent, 
+//       WrappedComponent, 
+//       getResult: () => hookResultRef.current 
+//     };
+//   };
+
+//   beforeEach(() => {
+//     jest.clearAllMocks();
+//     document.body.innerHTML = '';
+//     global.fetch = jest.fn();
+//   });
+
+//   describe('useHulk', () => {
+    // it('should return hulk context', () => {
+    //   const { WrappedComponent, getResult } = createTestComponent(() => useHulk(), mockConfig);
+    //   render(React.createElement(WrappedComponent));
+      
+    //   const result = getResult();
+    //   expect(result).toBeDefined();
+    //   expect(result.auth).toBeDefined();
+    //   expect(result.fetchGlobalOptions).toBeDefined();
+    //   expect(result.alertGlobalOptions).toBeDefined();
+    // });
+
+    // it('should test hook with renderHook approach', () => {
+    //     const wrapper = ({ children }: { children: React.ReactNode }) => {
+    //       // Create a proper component that returns the children
+    //       const ChildComponent = () => children as React.ReactElement;
+    //       const WrappedComponent = withHulk(ChildComponent, mockConfig);
+    //       return React.createElement(WrappedComponent);
+    //     };
+      
+    //     const { result } = renderHook(() => useHulk());
+    //     console.log('Render hook result:', result.current);
+    //     expect(result.current).toBeDefined();
+    //     expect(result.current.fetchGlobalOptions).toBeDefined();
+    //     expect(result.current.alertGlobalOptions).toBeDefined();
+    //   });
+
+    // it('direct test without helper', () => {
+    //   let capturedResult: any = undefined;
+      
+    //   const TestComponent = () => {
+    //     capturedResult = useHulk();
+    //     return React.createElement('div', { 'data-testid': 'test' });
+    //   };
+      
+    //   const WrappedComponent = withHulk(TestComponent, mockConfig);
+    //   render(React.createElement(WrappedComponent));
+      
+    //   // Check if the component rendered
+    //   expect(screen.getByTestId('test')).toBeInTheDocument();
+      
+    //   // Check if the hook executed
+    //   console.log('Direct test captured result:', capturedResult);
+    //   expect(capturedResult).toBeDefined();
+    // });
+//   });
+
+//   describe('useHulkAlert', () => {
+//     it('should provide push and pop methods', () => {
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkAlert(), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       expect(typeof result.push).toBe('function');
+//       expect(typeof result.pop).toBe('function');
+//     });
+
+//     it('should push string alert to DOM', async () => {
+//       // Create target element
+//       const target = document.createElement('div');
+//       target.id = 'test-alerts';
+//       document.body.appendChild(target);
+
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkAlert(), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       act(() => {
+//         result.push('Test alert message', { alertId: 'test-alert' });
+//       });
+
+//       await waitFor(() => {
+//         const alertElement = document.getElementById('test-alert');
+//         expect(alertElement).toBeInTheDocument();
+//         expect(alertElement).toHaveTextContent('Test alert message');
+//       });
+//     });
+
+//     it('should pop alert from DOM', async () => {
+//       // Create target element with existing alert
+//       const target = document.createElement('div');
+//       target.id = 'test-alerts';
+//       const existingAlert = document.createElement('div');
+//       existingAlert.id = 'existing-alert';
+//       existingAlert.textContent = 'Existing alert';
+//       target.appendChild(existingAlert);
+//       document.body.appendChild(target);
+
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkAlert(), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       act(() => {
+//         result.pop({ alertId: 'existing-alert' });
+//       });
+
+//       await waitFor(() => {
+//         const alertElement = document.getElementById('existing-alert');
+//         expect(alertElement).not.toBeInTheDocument();
+//       });
+//     });
+
+//     it('should replace duplicate alerts when replaceDuplicates is true', async () => {
+//       const target = document.createElement('div');
+//       target.id = 'test-alerts';
+//       document.body.appendChild(target);
+
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkAlert(), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       // Push first alert
+//       act(() => {
+//         result.push('First alert', { alertId: 'duplicate-alert' });
+//       });
+
+//       // Push second alert with same ID
+//       act(() => {
+//         result.push('Second alert', { alertId: 'duplicate-alert' });
+//       });
+
+//       await waitFor(() => {
+//         const alerts = document.querySelectorAll('#duplicate-alert');
+//         expect(alerts).toHaveLength(1);
+//         expect(alerts[0]).toHaveTextContent('Second alert');
+//       });
+//     });
+
+//     it('should use custom target ID when provided', async () => {
+//       const customTarget = document.createElement('div');
+//       customTarget.id = 'custom-target';
+//       document.body.appendChild(customTarget);
+
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkAlert(), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       act(() => {
+//         result.push('Custom target alert', { 
+//           alertId: 'custom-alert',
+//           targetId: 'custom-target'
+//         });
+//       });
+
+//       await waitFor(() => {
+//         const alertElement = document.getElementById('custom-alert');
+//         expect(alertElement).toBeInTheDocument();
+//         expect(customTarget).toContainElement(alertElement);
+//       });
+//     });
+//   });
+
+//   describe('useHulkFetch', () => {
+//     it('should return data and dispatch function', () => {
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkFetch('/test'), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       expect(result.data).toBeUndefined();
+//       expect(typeof result.dispatch).toBe('function');
+//     });
+
+//     it('should make successful fetch request', async () => {
+//       const mockData = { id: 1, name: 'Test' };
+//       const mockFetch = jest.fn().mockResolvedValue({
+//         ok: true,
+//         json: jest.fn().mockResolvedValue(mockData),
+//       });
+//       global.fetch = mockFetch;
+
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkFetch('/test'), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       await act(async () => {
+//         await result.dispatch();
+//       });
+
+//       expect(mockFetch).toHaveBeenCalledWith(
+//         new URL('/test', 'https://api.test.com'),
+//         expect.objectContaining({
+//           method: 'GET',
+//           headers: expect.objectContaining({
+//             'Content-Type': 'application/json',
+//           }),
+//         })
+//       );
+//       expect(result.data).toEqual(mockData);
+//     });
+
+//     it('should handle network errors', async () => {
+//       const mockFetch = jest.fn().mockRejectedValue(new Error('Network error'));
+//       global.fetch = mockFetch;
+
+//       const onError = jest.fn();
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkFetch('/test', { onError }), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       await act(async () => {
+//         await result.dispatch();
+//       });
+
+//       expect(onError).toHaveBeenCalledWith(
+//         { message: 'Network error', code: 500 },
+//         expect.any(Object)
+//       );
+//     });
+
+//     it('should handle 401 unauthorized with token refresh', async () => {
+//       const mockAccessTokenRetriever = jest.fn().mockResolvedValue({
+//         access_token: 'new-token'
+//       });
+
+//       const configWithTokenRetriever = {
+//         ...mockConfig,
+//         fetchGlobalOptions: {
+//           ...mockConfig.fetchGlobalOptions,
+//           accessTokenRetriever: mockAccessTokenRetriever,
+//         }
+//       };
+
+//       const mockFetch = jest.fn()
+//         .mockResolvedValueOnce({
+//           ok: false,
+//           status: 401,
+//           statusText: 'Unauthorized',
+//           text: jest.fn().mockResolvedValue('Unauthorized'),
+//         })
+//         .mockResolvedValueOnce({
+//           ok: true,
+//           json: jest.fn().mockResolvedValue({ success: true }),
+//         });
+//       global.fetch = mockFetch;
+
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkFetch('/test'), configWithTokenRetriever);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       await act(async () => {
+//         await result.dispatch();
+//       });
+
+//       expect(mockAccessTokenRetriever).toHaveBeenCalled();
+//       expect(mockFetch).toHaveBeenCalledTimes(2);
+//       expect(result.data).toEqual({ success: true });
+//     });
+
+//     it('should redirect on failed token refresh', async () => {
+//       const mockAccessTokenRetriever = jest.fn().mockResolvedValue(undefined);
+
+//       const configWithTokenRetriever = {
+//         ...mockConfig,
+//         fetchGlobalOptions: {
+//           ...mockConfig.fetchGlobalOptions,
+//           accessTokenRetriever: mockAccessTokenRetriever,
+//         }
+//       };
+
+//       const mockFetch = jest.fn().mockResolvedValue({
+//         ok: false,
+//         status: 401,
+//         statusText: 'Unauthorized',
+//         text: jest.fn().mockResolvedValue('Unauthorized'),
+//       });
+//       global.fetch = mockFetch;
+
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkFetch('/test'), configWithTokenRetriever);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       await act(async () => {
+//         await result.dispatch();
+//       });
+
+//       expect(mockRedirect).toHaveBeenCalledWith('/login?code=401&next=/dashboard');
+//     });
+
+//     it('should include authorization header when token exists', async () => {
+//       const mockData = { success: true };
+//       const mockFetch = jest.fn().mockResolvedValue({
+//         ok: true,
+//         json: jest.fn().mockResolvedValue(mockData),
+//       });
+//       global.fetch = mockFetch;
+
+//       let hulkContext: any;
+//       let fetchResult: any;
+
+//       const TestComponent = () => {
+//         hulkContext = useHulk();
+//         fetchResult = useHulkFetch('/test');
+//         return React.createElement('div');
+//       };
+
+//       const WrappedComponent = withHulk(TestComponent, mockConfig);
+//       render(React.createElement(WrappedComponent));
+
+//       // Set token
+//       act(() => {
+//         hulkContext.auth.update({
+//           token: { access_token: 'test-token' }
+//         });
+//       });
+
+//       await act(async () => {
+//         await fetchResult.dispatch();
+//       });
+
+//       expect(mockFetch).toHaveBeenCalledWith(
+//         expect.any(URL),
+//         expect.objectContaining({
+//           headers: expect.objectContaining({
+//             authorization: 'Bearer test-token',
+//           }),
+//         })
+//       );
+//     });
+
+//     it('should handle query parameters', async () => {
+//       const mockFetch = jest.fn().mockResolvedValue({
+//         ok: true,
+//         json: jest.fn().mockResolvedValue({}),
+//       });
+//       global.fetch = mockFetch;
+
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkFetch('/test'), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       await act(async () => {
+//         await result.dispatch({
+//           query: { page: 1, limit: 10, search: 'test' }
+//         });
+//       });
+
+//       expect(mockFetch).toHaveBeenCalledWith(
+//         expect.objectContaining({
+//           searchParams: expect.any(URLSearchParams)
+//         }),
+//         expect.any(Object)
+//       );
+
+//       const calledUrl = mockFetch.mock.calls[0][0];
+//       expect(calledUrl.searchParams.get('page')).toBe('1');
+//       expect(calledUrl.searchParams.get('limit')).toBe('10');
+//       expect(calledUrl.searchParams.get('search')).toBe('test');
+//     });
+
+//     it('should call onPending callbacks', async () => {
+//       const mockFetch = jest.fn().mockResolvedValue({
+//         ok: true,
+//         json: jest.fn().mockResolvedValue({}),
+//       });
+//       global.fetch = mockFetch;
+
+//       const onPending = jest.fn();
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkFetch('/test', { onPending }), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       await act(async () => {
+//         await result.dispatch();
+//       });
+
+//       expect(onPending).toHaveBeenCalledWith('start', expect.any(Object));
+//       expect(onPending).toHaveBeenCalledWith('end', expect.any(Object));
+//     });
+
+//     it('should call onSuccess callback', async () => {
+//       const mockData = { success: true };
+//       const mockFetch = jest.fn().mockResolvedValue({
+//         ok: true,
+//         json: jest.fn().mockResolvedValue(mockData),
+//       });
+//       global.fetch = mockFetch;
+
+//       const onSuccess = jest.fn();
+//       const { WrappedComponent, getResult } = createTestComponent(() => useHulkFetch('/test', { onSuccess }), mockConfig);
+//       render(React.createElement(WrappedComponent));
+      
+//       const result = getResult();
+//       await act(async () => {
+//         await result.dispatch();
+//       });
+
+//       expect(onSuccess).toHaveBeenCalledWith(mockData, expect.any(Object));
+//     });
+//   });
+// });
