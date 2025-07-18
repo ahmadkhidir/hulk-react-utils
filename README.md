@@ -41,8 +41,8 @@ const config: HulkGlobalConfigProps = {
   }
 };
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+function MyApp(...) {
+  return <div>...</div>;
 }
 
 export default withHulk(MyApp, config);
@@ -109,7 +109,7 @@ interface HulkGlobalConfigProps {
 
 ## License
 
-MIT © [Your Name]
+MIT © Ahmad Khidir
 
 ## Contributing
 

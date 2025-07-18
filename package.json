@@ -1,6 +1,6 @@
 {
     "name": "hulk-react-utils",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "type": "module",
     "description": "A React utility library for authentication, fetching, and alert management",
     "main": "dist/index.js",
